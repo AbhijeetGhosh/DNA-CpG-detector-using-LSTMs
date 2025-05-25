@@ -5,7 +5,7 @@ import torch.nn as nn
 from torch.nn.utils.rnn import pack_padded_sequence
 from functools import partial
 
-# ---- MODEL DEFINITION ----
+# MODEL DEFINITION 
 
 class CpGPredictor(nn.Module):
     def __init__(self):
@@ -22,7 +22,7 @@ class CpGPredictor(nn.Module):
         output = self.classifier(final_hidden)
         return output.squeeze(1)
 
-# ---- LOAD MODEL ----
+# LOAD MODEL 
 
 @st.cache_resource
 def load_model(model_path="cpg_model.pt"):
@@ -33,14 +33,14 @@ def load_model(model_path="cpg_model.pt"):
 
 model = load_model()
 
-# ---- MAPPINGS ----
+# MAPPINGS 
 
 alphabet = 'NACGT'
 dna2int = {a: i for a, i in zip(alphabet, range(1, 6))}
 dna2int.update({"pad": 0})
 intseq_to_dnaseq = partial(map, lambda i: "<pad>" if i == 0 else alphabet[i-1])
 
-# ---- HELPER FUNCTION ----
+# HELPER FUNCTION 
 
 def preprocess_sequence(seq):
     seq = seq.strip().upper()
@@ -52,10 +52,10 @@ def preprocess_sequence(seq):
 def decode_sequence(seq):
     return ''.join(intseq_to_dnaseq(seq))
 
-# ---- STREAMLIT UI ----
+# STREAMLIT UI 
 
-st.title("🧬 CpG Detector")
-st.write("Enter a DNA sequence (e.g., `NCACANNTNCGGAGGCGNA`) and get the predicted number of CpG sites (consecutive 'CG' pairs).")
+st.title(" CpG Detector")
+st.write("Enter a DNA sequence (e.g., NCACANNTNCGGAGGCGNA) and get the predicted number of CpG sites (consecutive 'CG' pairs).")
 
 user_input = st.text_input("Input DNA sequence:")
 
@@ -63,7 +63,7 @@ if user_input:
     tensor, lengths, raw_seq = preprocess_sequence(user_input)
     with torch.no_grad():
         prediction = model(tensor, lengths).item()
-    st.markdown("### ✅ Prediction:")
+    st.markdown("###  Prediction:")
     st.write(f"**Estimated CpG Count**: `{prediction:.2f}`")
-    st.markdown("### 🧪 Interpreted Input:")
+    st.markdown("###  Interpreted Input:")
     st.code(decode_sequence(raw_seq), language="text")
